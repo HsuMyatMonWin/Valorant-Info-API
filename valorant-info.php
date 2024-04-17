@@ -11,7 +11,7 @@ error_reporting(E_ERROR | E_PARSE);
 
 // Enqueue scripts and styles
 function valorant_api_enqueue_scripts() {
-    wp_enqueue_style('valorant-api-style', plugin_dir_url(__FILE__) . 'style.css');
+    wp_enqueue_style('valorant-api-style', plugin_dir_url(__FILE__) . 'assets/style.css');
 }
 add_action('wp_enqueue_scripts', 'valorant_api_enqueue_scripts');
 
@@ -74,17 +74,20 @@ function valorant_api_agent_data($atts) {
             if ($data && isset($data['data'])) {
                 $agents = $data['data'];
 
-                // Output GM data
-                $output = '<div class="chess-gm-data">';
+                // Output Agent data
+                $output = '<div class="display-container">';
                 foreach ($agents as $agent) {
-                    $output .= '<div class="player">';
+                    $output .= '<div class="agent">';
+                    $output .= '<img src=' . $agent['displayIcon'] .' class="icon">';
+                    $output .= '<div class="agent-details">';
                     $output .= '<h2>' . $agent['displayName'] . '</h2>';
-                    $output .= '<img src=' . $agent['displayIcon'] .'>';
                     $output .= '<p>Role: ' . $agent['role']['displayName'] . '</p>';
                     $output .= '<p>Background: ' . $agent['description'] . '</p>';
+                    $output .= '<p>Abilities: ' . $agent['abilities'][0]['displayName'] . ', ' . $agent['abilities'][1]['displayName'] . ', ' . $agent['abilities'][2]['displayName'] . ', ' . $agent['abilities'][3]['displayName'] . '</p>';
+                    $output .= '</div>';
                     $output .= '</div>';
                 }
-                $output .= '</div>';
+                $output .= '</div>'; // Close container
 
                 return $output;
             } else {
@@ -119,24 +122,26 @@ function valorant_api_weapon_data($atts) {
                 $weapons = $data['data'];
                 $filler_string = 'EEquippableCategory::';
 
-                // Output GM data
-                $output = '<div class="chess-gm-data">';
+                // Output Weapon data
+                $output = '<div class="display-container">';
                 foreach ($weapons as $weapon) {
-
-                    $output .= '<div class="player">';
+                    $output .= '<div class="weapon">';
+                    $output .= '<img src=' . $weapon['displayIcon'] .' class="icon">';
+                    $output .= '<div class="weapon-details">';
                     $output .= '<h2>' . $weapon['displayName'] . '</h2>';
-                    $output .= '<img src=' . $weapon['displayIcon'] .'>';
                     $output .= '<p>Category: ' . ltrim($weapon['category'], $filler_string) . '</p>';
+                    $output .= '<p>Damage(Head, Body, Leg): ' . $weapon['weaponStats']['damageRanges'][0]['headDamage'] . ', ' . $weapon['weaponStats']['damageRanges'][0]['bodyDamage'] . ', ' . $weapon['weaponStats']['damageRanges'][0]['legDamage'] . '</p>';
                     $output .= '<p>Fire Rate: ' . $weapon['weaponStats']['fireRate'] . '</p>';
                     $output .= '<p>Magazine Size: ' . $weapon['weaponStats']['magazineSize'] . '</p>';
                     $output .= '<p>Reload Speed: ' . $weapon['weaponStats']['reloadTimeSeconds'] . '</p>';
                     $output .= '</div>';
+                    $output .= '</div>';
                 }
-                $output .= '</div>';
+                $output .= '</div>'; // Close container
 
                 return $output;
             } else {
-                return '<p>Failed to retrieve agent data from the API.</p>';
+                return '<p>Failed to retrieve weapon data from the API.</p>';
             }
         } else {
             return '<p>Failed to connect to the API.</p>';
@@ -146,4 +151,5 @@ function valorant_api_weapon_data($atts) {
     }
 }
 add_shortcode( 'valorant_weapon_data', 'valorant_api_weapon_data' );
+
 ?>

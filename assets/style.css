@@ -1,0 +1,38 @@
+/* CSS for Valorant Info Plugin */
+.display-container {
+    margin: 0 auto;
+    width: 80%;
+}
+
+.agent,
+.weapon {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    width: 50px; /* Adjust the size of the icon */
+    height: auto;
+    margin-right: 20px;
+}
+
+.agent-details,
+.weapon-details {
+    flex: 1;
+}
+
+.agent-details h2,
+.weapon-details h2 {
+    margin-top: 0;
+}
+
+/* Clear floats after the list */
+.display-container::after {
+    content: "";
+    display: table;
+    clear: both;
+}
