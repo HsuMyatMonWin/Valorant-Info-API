@@ -27,9 +27,16 @@ function valorant_info_admin_menu() {
 }
 add_action('admin_menu', 'valorant_info_admin_menu');
 
+
 // Register settings
 function valorant_info_register_settings() {
-    register_setting('valorant-info-settings-group', 'valorant_show_info');
+    register_setting('valorant-info-settings-group', 'valorant_show_agent_background');
+    register_setting('valorant-info-settings-group', 'valorant_show_agent_abilities');
+    register_setting('valorant-info-settings-group', 'valorant_show_weapon_category');
+    register_setting('valorant-info-settings-group', 'valorant_show_weapon_magazine');
+    register_setting('valorant-info-settings-group', 'valorant_show_weapon_fire_rate');
+    register_setting('valorant-info-settings-group', 'valorant_show_weapon_reload');
+    register_setting('valorant-info-settings-group', 'valorant_show_weapon_damage');
 }
 add_action('admin_init', 'valorant_info_register_settings');
 
@@ -44,9 +51,39 @@ function valorant_info_settings_page() {
             do_settings_sections('valorant-info-settings-group');
             ?>
             <table class="form-table">
+                <tr>
+                    <td><h2>Agent Display Settings</h2></td>
+                </tr>
                 <tr valign="top">
-                    <th scope="row">Show Information</th>
-                    <td><label for="valorant_show_info"><input type="checkbox" id="valorant_show_info" name="valorant_show_info" value="1" <?php checked(get_option('valorant_show_info'), 1); ?>> Show Valorant information</label></td>
+                    <th scope="row">Show Background</th>
+                    <td><label for="valorant_show_agent_background"><input type="checkbox" id="valorant_show_agent_background" name="valorant_show_agent_background" value="1" <?php checked(get_option('valorant_show_agent_background'), 1); ?>> Show Agent Background</label></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Show Abilities</th>
+                    <td><label for="valorant_show_agent_abilities"><input type="checkbox" id="valorant_show_agent_abilities" name="valorant_show_agent_abilities" value="1" <?php checked(get_option('valorant_show_agent_abilities'), 1); ?>> Show Agent Abilities</label></td>
+                </tr>
+                <tr>
+                    <td><h2>Weapon Display Settings</h2></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Show Category</th>
+                    <td><label for="valorant_show_weapon_category"><input type="checkbox" id="valorant_show_weapon_category" name="valorant_show_weapon_category" value="1" <?php checked(get_option('valorant_show_weapon_category'), 1); ?>> Show Weapon Category</label></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Show Magazine</th>
+                    <td><label for="valorant_show_weapon_magazine"><input type="checkbox" id="valorant_show_weapon_magazine" name="valorant_show_weapon_magazine" value="1" <?php checked(get_option('valorant_show_weapon_magazine'), 1); ?>> Show Weapon Magazine</label></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Show Fire Rate</th>
+                    <td><label for="valorant_show_weapon_fire_rate"><input type="checkbox" id="valorant_show_weapon_fire_rate" name="valorant_show_weapon_fire_rate" value="1" <?php checked(get_option('valorant_show_weapon_fire_rate'), 1); ?>> Show Weapon Fire Rate</label></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Show Reload Speed</th>
+                    <td><label for="valorant_show_weapon_reload"><input type="checkbox" id="valorant_show_weapon_reload" name="valorant_show_weapon_reload" value="1" <?php checked(get_option('valorant_show_weapon_reload'), 1); ?>> Show Weapon Reload</label></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Show Damage</th>
+                    <td><label for="valorant_show_weapon_damage"><input type="checkbox" id="valorant_show_weapon_damage" name="valorant_show_weapon_damage" value="1" <?php checked(get_option('valorant_show_weapon_damage'), 1); ?>> Show Weapon Damage</label></td>
                 </tr>
             </table>
             <?php submit_button(); ?>
@@ -57,97 +94,105 @@ function valorant_info_settings_page() {
 
 // Shortcode function to display agent data
 function valorant_api_agent_data($atts) {
-    // Check if option to show information is enabled
-    if (get_option('valorant_show_info') == 1) {
-        // API endpoint URL
-        $api_url = 'https://valorant-api.com/v1/agents';
+    // API endpoint URL
+    $api_url = 'https://valorant-api.com/v1/agents';
 
-        // Fetch data from the API
-        $response = wp_remote_get($api_url);
+    // Fetch data from the API
+    $response = wp_remote_get($api_url);
 
-        // Check if response is successful
-        if (is_array($response) && !is_wp_error($response)) {
-            $body = wp_remote_retrieve_body($response);
-            $data = json_decode($body, true);
+    // Check if response is successful
+    if (is_array($response) && !is_wp_error($response)) {
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
 
-            // Check if data is retrieved successfully
-            if ($data && isset($data['data'])) {
-                $agents = $data['data'];
+        // Check if data is retrieved successfully
+        if ($data && isset($data['data'])) {
+            $agents = $data['data'];
 
-                // Output Agent data
-                $output = '<div class="display-container">';
-                foreach ($agents as $agent) {
-                    $output .= '<div class="agent">';
-                    $output .= '<img src=' . $agent['displayIcon'] .' class="icon">';
-                    $output .= '<div class="agent-details">';
-                    $output .= '<h2>' . $agent['displayName'] . '</h2>';
-                    $output .= '<p>Role: ' . $agent['role']['displayName'] . '</p>';
+            // Output Agent data
+            $output = '<div class="display-container">';
+            foreach ($agents as $agent) {
+                $output .= '<div class="agent">';
+                $output .= '<img src=' . $agent['displayIcon'] .' class="icon">';
+                $output .= '<div class="agent-details">';
+                $output .= '<h2>' . $agent['displayName'] . '</h2>';
+                if (get_option('valorant_show_agent_background') == 1) {
                     $output .= '<p>Background: ' . $agent['description'] . '</p>';
-                    $output .= '<p>Abilities: ' . $agent['abilities'][0]['displayName'] . ', ' . $agent['abilities'][1]['displayName'] . ', ' . $agent['abilities'][2]['displayName'] . ', ' . $agent['abilities'][3]['displayName'] . '</p>';
-                    $output .= '</div>';
-                    $output .= '</div>';
                 }
-                $output .= '</div>'; // Close container
-
-                return $output;
-            } else {
-                return '<p>Failed to retrieve agent data from the API.</p>';
+                if (get_option('valorant_show_agent_abilities') == 1) {
+                    $output .= '<p>Abilities: ' . $agent['abilities'][0]['displayName'] . ', ' . $agent['abilities'][1]['displayName'] . ', ' . $agent['abilities'][2]['displayName'] . ', ' . $agent['abilities'][3]['displayName'] . '</p>';
+                }
+                $output .= '</div>';
+                $output .= '</div>';
             }
+            $output .= '</div>'; // Close container
+
+            return $output;
         } else {
-            return '<p>Failed to connect to the API.</p>';
+            return '<p>Failed to retrieve agent data from the API.</p>';
         }
     } else {
-        return ''; // If option is disabled, return empty string
+        return '<p>Failed to connect to the API.</p>';
     }
 }
 add_shortcode( 'valorant_agent_data', 'valorant_api_agent_data' );
 
 // Shortcode function to display weapon data
 function valorant_api_weapon_data($atts) {
-    // Check if option to show information is enabled
-    if (get_option('valorant_show_info') == 1) {
-        // API endpoint URL
-        $api_url = 'https://valorant-api.com/v1/weapons';
+    // API endpoint URL
+    $api_url = 'https://valorant-api.com/v1/weapons';
 
-        // Fetch data from the API
-        $response = wp_remote_get($api_url);
+    // Fetch data from the API
+    $response = wp_remote_get($api_url);
 
-        // Check if response is successful
-        if (is_array($response) && !is_wp_error($response)) {
-            $body = wp_remote_retrieve_body($response);
-            $data = json_decode($body, true);
+    // Check if response is successful
+    if (is_array($response) && !is_wp_error($response)) {
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
 
-            // Check if data is retrieved successfully
-            if ($data && isset($data['data'])) {
-                $weapons = $data['data'];
-                $filler_string = 'EEquippableCategory::';
+        // Check if data is retrieved successfully
+        if ($data && isset($data['data'])) {
+            $weapons = $data['data'];
+            $filler_string = 'EEquippableCategory::';
 
-                // Output Weapon data
-                $output = '<div class="display-container">';
-                foreach ($weapons as $weapon) {
-                    $output .= '<div class="weapon">';
-                    $output .= '<img src=' . $weapon['displayIcon'] .' class="icon">';
-                    $output .= '<div class="weapon-details">';
-                    $output .= '<h2>' . $weapon['displayName'] . '</h2>';
+            // Output Weapon data
+            $output = '<div class="display-container">';
+            foreach ($weapons as $weapon) {
+                $output .= '<div class="weapon">';
+                $output .= '<img src=' . $weapon['displayIcon'] .' class="icon">';
+                $output .= '<div class="weapon-details">';
+                $output .= '<h2>' . $weapon['displayName'] . '</h2>';
+                // Check if option to show weapon category is enabled
+                if (get_option('valorant_show_weapon_category')) {
                     $output .= '<p>Category: ' . ltrim($weapon['category'], $filler_string) . '</p>';
-                    $output .= '<p>Damage(Head, Body, Leg): ' . $weapon['weaponStats']['damageRanges'][0]['headDamage'] . ', ' . $weapon['weaponStats']['damageRanges'][0]['bodyDamage'] . ', ' . $weapon['weaponStats']['damageRanges'][0]['legDamage'] . '</p>';
-                    $output .= '<p>Fire Rate: ' . $weapon['weaponStats']['fireRate'] . '</p>';
-                    $output .= '<p>Magazine Size: ' . $weapon['weaponStats']['magazineSize'] . '</p>';
-                    $output .= '<p>Reload Speed: ' . $weapon['weaponStats']['reloadTimeSeconds'] . '</p>';
-                    $output .= '</div>';
-                    $output .= '</div>';
                 }
-                $output .= '</div>'; // Close container
-
-                return $output;
-            } else {
-                return '<p>Failed to retrieve weapon data from the API.</p>';
+                // Check if option to show weapon magazine is enabled
+                if (get_option('valorant_show_weapon_magazine')) {
+                    $output .= '<p>Magazine Size: ' . $weapon['weaponStats']['magazineSize'] . '</p>';
+                }
+                // Check if option to show weapon fire rate is enabled
+                if (get_option('valorant_show_weapon_fire_rate')) {
+                    $output .= '<p>Fire Rate: ' . $weapon['weaponStats']['fireRate'] . '</p>';
+                }
+                // Check if option to show weapon reload is enabled
+                if (get_option('valorant_show_weapon_reload')) {
+                    $output .= '<p>Reload Speed: ' . $weapon['weaponStats']['reloadTimeSeconds'] . '</p>';
+                }
+                // Check if option to show weapon damage is enabled
+                if (get_option('valorant_show_weapon_damage')) {
+                    $output .= '<p>Damage (Head, Body, Leg): ' . $weapon['weaponStats']['damageRanges'][0]['headDamage'] . ', ' . $weapon['weaponStats']['damageRanges'][0]['bodyDamage'] . ', ' . $weapon['weaponStats']['damageRanges'][0]['legDamage'] . '</p>';
+                }
+                $output .= '</div>';
+                $output .= '</div>';
             }
+            $output .= '</div>'; // Close container
+
+            return $output;
         } else {
-            return '<p>Failed to connect to the API.</p>';
+            return '<p>Failed to retrieve weapon data from the API.</p>';
         }
     } else {
-        return ''; // If option is disabled, return empty string
+        return '<p>Failed to connect to the API.</p>';
     }
 }
 add_shortcode( 'valorant_weapon_data', 'valorant_api_weapon_data' );
