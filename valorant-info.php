@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Valorant Info Plugin
-Description: A WordPress plugin to display Valorant agent and weapon data from the Valorant-API.
-Version: 1.1
+Description: A WordPress plugin to display Valorant agent and weapon information from the Valorant-API.
+Version: 1.2
 Author: Hsu Myat Mon Win
 */
 
@@ -30,7 +30,7 @@ add_action('admin_menu', 'valorant_info_admin_menu');
 
 // Register settings
 function valorant_info_register_settings() {
-    register_setting('valorant-info-settings-group', 'valorant_show_agent_background');
+    register_setting('valorant-info-settings-group', 'valorant_show_agent_description');
     register_setting('valorant-info-settings-group', 'valorant_show_agent_abilities');
     register_setting('valorant-info-settings-group', 'valorant_show_weapon_category');
     register_setting('valorant-info-settings-group', 'valorant_show_weapon_magazine');
@@ -52,25 +52,25 @@ function valorant_info_settings_page() {
             ?>
             <table class="form-table">
                 <tr>
-                    <td><h2>Agent Display Settings</h2></td>
+                    <td><h2>Agent Information Display Settings</h2></td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row">Show Background</th>
-                    <td><label for="valorant_show_agent_background"><input type="checkbox" id="valorant_show_agent_background" name="valorant_show_agent_background" value="1" <?php checked(get_option('valorant_show_agent_background'), 1); ?>> Show Agent Background</label></td>
+                    <th scope="row">Show Description</th>
+                    <td><label for="valorant_show_agent_description"><input type="checkbox" id="valorant_show_agent_description" name="valorant_show_agent_description" value="1" <?php checked(get_option('valorant_show_agent_description'), 1); ?>> Show Agent Description</label></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Show Abilities</th>
                     <td><label for="valorant_show_agent_abilities"><input type="checkbox" id="valorant_show_agent_abilities" name="valorant_show_agent_abilities" value="1" <?php checked(get_option('valorant_show_agent_abilities'), 1); ?>> Show Agent Abilities</label></td>
                 </tr>
                 <tr>
-                    <td><h2>Weapon Display Settings</h2></td>
+                    <td><h2>Weapon Information Display Settings</h2></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Show Category</th>
                     <td><label for="valorant_show_weapon_category"><input type="checkbox" id="valorant_show_weapon_category" name="valorant_show_weapon_category" value="1" <?php checked(get_option('valorant_show_weapon_category'), 1); ?>> Show Weapon Category</label></td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row">Show Magazine</th>
+                    <th scope="row">Show Magazine Size</th>
                     <td><label for="valorant_show_weapon_magazine"><input type="checkbox" id="valorant_show_weapon_magazine" name="valorant_show_weapon_magazine" value="1" <?php checked(get_option('valorant_show_weapon_magazine'), 1); ?>> Show Weapon Magazine</label></td>
                 </tr>
                 <tr valign="top">
@@ -116,8 +116,8 @@ function valorant_api_agent_data($atts) {
                 $output .= '<img src=' . $agent['displayIcon'] .' class="icon">';
                 $output .= '<div class="agent-details">';
                 $output .= '<h2>' . $agent['displayName'] . '</h2>';
-                if (get_option('valorant_show_agent_background') == 1) {
-                    $output .= '<p>Background: ' . $agent['description'] . '</p>';
+                if (get_option('valorant_show_agent_description') == 1) {
+                    $output .= '<p>Description: ' . $agent['description'] . '</p>';
                 }
                 if (get_option('valorant_show_agent_abilities') == 1) {
                     $output .= '<p>Abilities: ' . $agent['abilities'][0]['displayName'] . ', ' . $agent['abilities'][1]['displayName'] . ', ' . $agent['abilities'][2]['displayName'] . ', ' . $agent['abilities'][3]['displayName'] . '</p>';
